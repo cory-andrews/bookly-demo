@@ -1,0 +1,44 @@
+# Core .editorconfig options
+root=true
+
+# .NET code files
+[*.cs]
+indent_style=space
+indent_size=4
+end_of_line=crlf
+charset=utf-8
+trim_trailing_whitespace=true
+insert_final_newline=true
+
+# CA1307: Specify StringComparison for clarity
+dotnet_diagnostic.CA1307.severity = none
+
+# CA2007: Consider calling ConfigureAwait on the awaited task
+dotnet_diagnostic.CA2007.severity = none
+
+# .NET csproj files
+[*.csproj]
+indent_style=space
+indent_size=2
+end_of_line=crlf
+charset=utf-8
+trim_trailing_whitespace=true
+insert_final_newline=false
+
+# .json configuration files
+[*.json]
+indent_style=space
+indent_size=2
+end_of_line=crlf
+charset=utf-8
+trim_trailing_whitespace=true
+insert_final_newline=true
+
+# YML
+[*.{yaml,yml}]
+indent_style=space
+indent_size=2
+end_of_line=crlf
+charset=utf-8
+trim_trailing_whitespace=true
+insert_final_newline=true
