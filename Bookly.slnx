@@ -10,4 +10,8 @@
     <Project Path="src/Aspire/AppHost/Bookly.AppHost.csproj" />
     <Project Path="src/Aspire/ServiceDefaults/Bookly.ServiceDefaults.csproj" />
   </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/IntegrationTests/">
+    <Project Path="tests/IntegrationTests/Bookly.IntegrationTests.csproj" />
+  </Folder>
 </Solution>

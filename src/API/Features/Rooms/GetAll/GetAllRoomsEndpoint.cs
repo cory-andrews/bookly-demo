@@ -9,6 +9,8 @@ public static class GetAllRoomsEndpoint
     public static void MapEndpoint(IEndpointRouteBuilder builder)
     {
         builder.MapGet("/api/rooms", HandleAsync)
+            .WithSummary("Get all rooms")
+            .WithDescription("Retrieves a list of all rooms")
             .WithTags("Rooms");
     }
 

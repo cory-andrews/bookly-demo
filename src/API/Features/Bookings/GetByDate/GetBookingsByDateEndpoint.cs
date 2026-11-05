@@ -9,6 +9,8 @@ public static class GetBookingsByDateEndpoint
     public static void MapEndpoint(IEndpointRouteBuilder builder)
     {
         builder.MapGet("/api/bookings", HandleAsync)
+            .WithSummary("Get bookings by date")
+            .WithDescription("Retrieves all bookings for a specific date")
             .WithTags("Bookings");
     }
 

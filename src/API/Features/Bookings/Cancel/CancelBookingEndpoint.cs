@@ -8,15 +8,18 @@ public static class CancelBookingEndpoint
     public static void MapEndpoint(IEndpointRouteBuilder builder)
     {
         builder.MapDelete("/api/bookings/{bookingId:guid}", HandleAsync)
+            .WithSummary("Cancel booking")
+            .WithDescription("Cancels an existing booking by its ID")
             .WithTags("Bookings");
     }
 
-    private static async Task<Ok> HandleAsync(BooklyDbContext dbContext, Guid bookingId, CancellationToken cancellationToken)
+    private static async Task<Results<Ok, NotFound>> HandleAsync(BooklyDbContext dbContext, Guid bookingId, CancellationToken cancellationToken)
     {
         var booking = await dbContext.Bookings.FindAsync([bookingId], cancellationToken);
+
         if (booking is null)
         {
-            return TypedResults.Ok();
+            return TypedResults.NotFound();
         }
 
         dbContext.Bookings.Remove(booking);

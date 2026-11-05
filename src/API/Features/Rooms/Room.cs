@@ -15,12 +15,12 @@ public sealed class Room
     [ConcurrencyCheck]
     public Guid ConcurrencyToken { get; private set; }
 
-    public static Room Create(string dDisplayName)
+    public static Room Create(string displayName)
     {
         return new()
         {
             Id = Guid.NewGuid(),
-            DisplayName = dDisplayName
+            DisplayName = displayName
         };
     }
 

@@ -1,6 +1,8 @@
 using Bookly.Api.Data;
 using Bookly.Api.Features.Bookings;
+using Bookly.Api.Features.Bookings.Create;
 using Bookly.Api.Features.Rooms;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -19,7 +21,7 @@ builder.AddSqlServerDbContext<BooklyDbContext>(connectionName: "Database", confi
         {
             var rooms = dbContext.Set<Room>();
 
-            if (rooms.FirstOrDefault(r => r.DisplayName == "Conference Room") is null)rooms.Add(Room.Create("Conference Room"));
+            if (rooms.FirstOrDefault(r => r.DisplayName == "Conference Room") is null) rooms.Add(Room.Create("Conference Room"));
             if (rooms.FirstOrDefault(r => r.DisplayName == "Meeting Room A") is null) rooms.Add(Room.Create("Meeting Room A"));
             if (rooms.FirstOrDefault(r => r.DisplayName == "Meeting Room B") is null) rooms.Add(Room.Create("Meeting Room B"));
 
@@ -38,6 +40,8 @@ builder.AddSqlServerDbContext<BooklyDbContext>(connectionName: "Database", confi
         });
     }
 });
+
+builder.Services.AddScoped<IValidator<CreateBookingRequest>, CreateBookingRequestValidator>();
 
 var app = builder.Build();
 
