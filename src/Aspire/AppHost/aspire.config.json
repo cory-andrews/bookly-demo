@@ -1,5 +1,5 @@
 {
   "appHost": {
-    "path": "AppHost.csproj"
+    "path": "Bookly.AppHost.csproj"
   }
 }
