@@ -1,10 +1,12 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var database = builder.AddSqlServer("Database")
+var sqlServer = builder.AddSqlServer("SqlServer")
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 
-builder.AddProject<Projects.Bookly_Api>("API")
+var database = sqlServer.AddDatabase("Database");
+
+var api = builder.AddProject<Projects.Bookly_Api>("API")
     .WithUrlForEndpoint("https", url =>
     {
         url.DisplayText = "Scalar (HTTPS)";
@@ -17,5 +19,10 @@ builder.AddProject<Projects.Bookly_Api>("API")
     })
     .WithReference(database)
     .WaitFor(database);
+
+var apiMigrations = api.AddEFMigrations("API-DatabaseMigrations")
+    .RunDatabaseUpdateOnStart();
+
+api.WaitForCompletion(apiMigrations);
 
 await builder.Build().RunAsync();
