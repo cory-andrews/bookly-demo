@@ -48,6 +48,8 @@ dotnet test .\tests\E2ETests
 
 **NOTE**: PowerShell is required to to install the Playwright dependencies.
 
+**NOTE**: Tests will run in headless mode. If you want to see the browser while the tests run, `HEADED=1` will need to be  set as an environment variable before executing the `dotnet test` command. See [Playwright's documentation](https://playwright.dev/dotnet/docs/test-configuration#headed) for more information.
+
 ## Preventing Double Bookings
 The approach taken in this application to prevent double bookings relies heavily on EF Core's optimistic concurrency implementation. More specifically, I have opted to utilize [Application-managed concurrency tokens](https://learn.microsoft.com/en-us/ef/core/saving/concurrency?tabs=data-annotations#application-managed-concurrency-tokens).
 

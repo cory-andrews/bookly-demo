@@ -329,6 +329,61 @@ public sealed class CreateBookingTests(BooklyApiFactory factory) : IAsyncLifetim
     }
 
     [Fact]
+    public async Task CreateBooking_WithConcurrentNonConflictingRequests_BothBookingsCreated()
+    {
+        // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
+
+        var room = Room.Create("Testing Room A");
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<BooklyDbContext>();
+
+            dbContext.Rooms.Add(room);
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        var startsAt = new DateTime(2026, 11, 05, 09, 00, 00, DateTimeKind.Utc);
+        var endsAt = new DateTime(2026, 11, 05, 10, 00, 00, DateTimeKind.Utc);
+
+        var request1 = new CreateBookingRequest(
+            room.Id,
+            "Cory Andrews",
+            startsAt,
+            endsAt
+        );
+
+        var request2 = new CreateBookingRequest(
+            room.Id,
+            "John Doe",
+            endsAt,
+            endsAt.AddHours(1)
+        );
+
+        // Act
+        var res1Task = _client.PostAsJsonAsync("/api/bookings", request1, cancellationToken);
+        var res2Task = _client.PostAsJsonAsync("/api/bookings", request2, cancellationToken);
+        await Task.WhenAll(res1Task, res2Task);
+
+        // Assert
+        var res1 = res1Task.Result;
+        var res2 = res2Task.Result;
+
+        res1.IsSuccessStatusCode.Should().BeTrue();
+        res2.IsSuccessStatusCode.Should().BeTrue();
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<BooklyDbContext>();
+
+            var numBookingsInDb = await dbContext.Bookings.CountAsync(cancellationToken);
+            numBookingsInDb.Should().Be(2);
+        }
+    }
+
+    [Fact]
     public async Task CreateBooking_WithExistingBookingCancelled_AllowsNewBookingToBeCreatedInSameSlot()
     {
         // Arrange
