@@ -11,6 +11,9 @@
     <Project Path="src/Aspire/ServiceDefaults/Bookly.ServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/tests/" />
+  <Folder Name="/tests/E2ETests/">
+    <Project Path="tests/E2ETests/Bookly.E2ETests.csproj" />
+  </Folder>
   <Folder Name="/tests/IntegrationTests/">
     <Project Path="tests/IntegrationTests/Bookly.IntegrationTests.csproj" />
   </Folder>

@@ -7,7 +7,7 @@ A demo application showing how to build a simple room booking system (including 
 - Vue 3 and Vite
 
 ## Getting Started
-Running the application requires the .NET 10 SDK, Node.js 24 and a running Docker daemon (for SQL Server).
+Running the application requires the .NET 10 SDK, PowerShell, Node.js 24 and a running Docker daemon (for SQL Server).
 
 To run the application, it is recommended to use the Aspire CLI. You can install it from [here](https://aspire.dev/get-started/install-cli/). With the CLI installed, from the root of this repository simply execute:
 ```bash
@@ -27,7 +27,7 @@ Both of these options will run the Aspire AppHost, which once started will displ
 ### Integration Tests
 The integration tests for the API can be run by executing the following command from the root of the repository:
 ```bash
-dotnet run --project .\tests\IntegrationTests
+dotnet test .\tests\IntegrationTests
 ```
 
 ### Frontend Tests
@@ -37,6 +37,16 @@ cd src/Frontend
 npm install
 npm test
 ```
+
+### End-to-End Tests
+The end-to-end tests can be run by executing the following commands from the root of the repository:
+```bash
+dotnet build --project .\tests\E2ETests
+pwsh .\tests\E2ETests\bin\Debug\net10.0\playwright.ps1 install --with-deps
+dotnet test .\tests\E2ETests
+```
+
+**NOTE**: PowerShell is required to to install the Playwright dependencies.
 
 ## Preventing Double Bookings
 The approach taken in this application to prevent double bookings relies heavily on EF Core's optimistic concurrency implementation. More specifically, I have opted to utilize [Application-managed concurrency tokens](https://learn.microsoft.com/en-us/ef/core/saving/concurrency?tabs=data-annotations#application-managed-concurrency-tokens).
