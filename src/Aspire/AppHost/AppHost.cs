@@ -25,4 +25,8 @@ var apiMigrations = api.AddEFMigrations("API-DatabaseMigrations")
 
 api.WaitForCompletion(apiMigrations);
 
+builder.AddViteApp("Frontend", "../../Frontend")
+    .WithReference(api)
+    .WaitFor(api);
+
 await builder.Build().RunAsync();
