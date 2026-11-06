@@ -80,6 +80,7 @@ An alternative approach considered was to have a double conflict check; one that
 ## What to Improve Next?
 - Security (e.g. users, login, authorized endpoints, etc.)
 - Modify bookings (e.g. adjust meeting length)
+- Further validation (e.g. prevent booking in the past, etc.)
 
 ## AI Tool Usage
 - Claude Design was used to generate the UI mockups.

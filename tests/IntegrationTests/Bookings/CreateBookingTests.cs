@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http.Json;
+using System.Security.Cryptography;
 
 namespace Bookly.IntegrationTests.Bookings;
 
@@ -73,6 +74,95 @@ public sealed class CreateBookingTests(BooklyApiFactory factory) : IAsyncLifetim
             booking.OccupantName.Should().Be(request.OccupantName);
             booking.StartsAtUtc.Should().Be(request.StartsAtUtc);
             booking.EndsAtUtc.Should().Be(request.EndsAtUtc);
+        }
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData((string?)null)]
+    public async Task CreateBooking_WithMissingOccupantName_ReturnsBadRequestResponse(string? occupantName)
+    {
+        // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
+
+        var room = Room.Create("Testing Room A");
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<BooklyDbContext>();
+
+            dbContext.Rooms.Add(room);
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        var request = new CreateBookingRequest(
+            room.Id,
+            occupantName!,
+            new DateTime(2026, 11, 05, 09, 00, 00, DateTimeKind.Utc),
+            new DateTime(2026, 11, 05, 10, 00, 00, DateTimeKind.Utc)
+        );
+
+        // Act
+        var res = await _client.PostAsJsonAsync("/api/bookings", request, cancellationToken);
+
+        // Assert
+        res.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+
+        var problemDetails = await res.Content.ReadFromJsonAsync<ValidationProblemDetails>(cancellationToken);
+        problemDetails.Should().NotBeNull();
+        problemDetails.Errors.Should().ContainKey(nameof(CreateBookingRequest.OccupantName));
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<BooklyDbContext>();
+
+            var numBookingsInDb = await dbContext.Bookings.CountAsync(cancellationToken);
+            numBookingsInDb.Should().Be(0);
+        }
+    }
+
+    [Fact]
+    public async Task CreateBooking_WithOccupantNameTooLong_ReturnsBadRequestResponse()
+    {
+        // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
+
+        var room = Room.Create("Testing Room A");
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<BooklyDbContext>();
+
+            dbContext.Rooms.Add(room);
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        var request = new CreateBookingRequest(
+            room.Id,
+            new string('A', 101), // Occupant name longer than 100 characters
+            new DateTime(2026, 11, 05, 09, 00, 00, DateTimeKind.Utc),
+            new DateTime(2026, 11, 05, 10, 00, 00, DateTimeKind.Utc)
+        );
+
+        // Act
+        var res = await _client.PostAsJsonAsync("/api/bookings", request, cancellationToken);
+
+        // Assert
+        res.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+
+        var problemDetails = await res.Content.ReadFromJsonAsync<ValidationProblemDetails>(cancellationToken);
+        problemDetails.Should().NotBeNull();
+        problemDetails.Errors.Should().ContainKey(nameof(CreateBookingRequest.OccupantName));
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<BooklyDbContext>();
+
+            var numBookingsInDb = await dbContext.Bookings.CountAsync(cancellationToken);
+            numBookingsInDb.Should().Be(0);
         }
     }
 
